@@ -1,3 +1,5 @@
+import 'package:expense_tracker/screens/add_expense_screen.dart';
+import 'package:expense_tracker/screens/home_screen.dart';
 import 'package:expense_tracker/widget/expense_tile.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +15,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,13 +22,11 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color(0xFF46AF50),
-          brightness: Brightness.dark,
+          brightness: Brightness.light,
         ),
-        useMaterial3: true
+        useMaterial3: true,
       ),
-      home: Scaffold(
-        body: ExpenseTile(),
-      ),
+      home: HomeScreen()
     );
   }
 }
