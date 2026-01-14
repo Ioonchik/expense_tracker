@@ -14,8 +14,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
 
-  DateTime? _selectedDate;
+  DateTime? _selectedDate = DateTime.now();
   Category _selectedCategory = Category.other;
+
+  String? _errorText;
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -29,6 +31,33 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     if (picked == null) return;
 
     setState(() => _selectedDate = picked);
+  }
+
+  void _saveExpense() {
+    final title = _titleController.text.trim();
+    final rawAmount = _amountController.text.replaceAll(',', '.');
+    final amount = double.tryParse(rawAmount);
+
+    if (title.isEmpty ||
+        amount == null ||
+        amount <= 0 ||
+        _selectedDate == null) {
+      setState(() {
+        _errorText = 'Please fill all fields correctly';
+      });
+      return;
+    }
+
+    final expense = Expense(
+      id: DateTime.now().millisecondsSinceEpoch,
+      title: title,
+      amount: amount,
+      date: _selectedDate!,
+      category: _selectedCategory,
+    );
+
+    widget.onAddExpense(expense);
+    Navigator.pop(context);
   }
 
   @override
@@ -79,9 +108,17 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   .toList(),
               onChanged: (value) {
                 if (value == null) return;
-                setState(() => _selectedCategory = value,);
+                setState(() => _selectedCategory = value);
               },
             ),
+
+            const SizedBox(height: 16),
+            if (_errorText != null) ...[
+              Text(
+                _errorText!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
 
             const SizedBox(height: 16),
             Row(
@@ -96,16 +133,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 Expanded(
                   child: FilledButton(
                     onPressed: () {
-                      final expense = Expense(
-                        id: 1,
-                        title: 'Test',
-                        amount: 100,
-                        date: DateTime.now(),
-                        category: Category.other,
-                      );
-
-                      widget.onAddExpense(expense);
-                      Navigator.pop(context);
+                      _saveExpense();
                     },
                     child: const Text('Add test expense'),
                   ),
