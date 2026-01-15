@@ -2,7 +2,7 @@ import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  AddExpenseScreen({super.key, required this.onAddExpense});
+  const AddExpenseScreen({super.key, required this.onAddExpense});
 
   final void Function(Expense expense) onAddExpense;
 
