@@ -49,4 +49,6 @@ class Expense {
       category: Category.values.byName(json['category'] as String),
     );
   }
+
+  
 }
