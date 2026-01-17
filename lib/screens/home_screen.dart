@@ -62,6 +62,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return result;
   }
 
+  void _deleteExpense(Expense expense) {
+    setState(() {
+      _expenses.remove(expense);
+      _storage.saveExpenses(_expenses);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: visibleExpenses.length,
                       itemBuilder: (context, index) {
                         final expense = visibleExpenses[index];
-                        return ExpenseTile(expense: expense);
+                        return ExpenseTile(expense: expense, onDelete: () => _deleteExpense(expense));
                       },
                     ),
             ),
