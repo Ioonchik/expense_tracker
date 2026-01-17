@@ -18,6 +18,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   double get total => getTotal(_expenses);
 
+  Category? _selectedCategory = null;
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +49,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return total;
   }
 
+  List<Expense> get visibleExpenses {
+    if (_selectedCategory == null) {
+      return _expenses;
+    }
+    List<Expense> result = [];
+    for (Expense expense in _expenses) {
+      if (expense.category == _selectedCategory) {
+        result.add(expense);
+      }
+    }
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
-                      //crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Total expenses:',
@@ -84,6 +98,90 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            Padding(
+              padding: EdgeInsets.all(5.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Wrap(
+                  spacing: 5,
+                  runSpacing: 10,
+                  children: [
+                    (_selectedCategory == null
+                        ? OutlinedButton(
+                            onPressed: () {
+                              _selectedCategory = null;
+                              setState(() {});
+                            },
+                            child: Text('All'),
+                          )
+                        : ElevatedButton(
+                            onPressed: () {
+                              _selectedCategory = null;
+                              setState(() {});
+                            },
+                            child: Text('All'),
+                          )),
+                    (_selectedCategory != Category.food
+                        ? ElevatedButton(
+                            onPressed: () {
+                              _selectedCategory = Category.food;
+                              setState(() {});
+                            },
+                            child: Text('Food'),
+                          )
+                        : OutlinedButton(
+                            onPressed: () {
+                              _selectedCategory = Category.food;
+                              setState(() {});
+                            },
+                            child: Text('Food'),
+                          )),
+                    (_selectedCategory != Category.transport
+                        ? ElevatedButton(
+                            onPressed: () {
+                              _selectedCategory = Category.transport;
+                              setState(() {});
+                            },
+                            child: Text('Transport'),
+                          )
+                        : OutlinedButton(
+                            onPressed: () {
+                              setState(() {});
+                            },
+                            child: Text('Transport'),
+                          )),
+                    (_selectedCategory != Category.entertainment
+                        ? ElevatedButton(
+                            onPressed: () {
+                              _selectedCategory = Category.entertainment;
+                              setState(() {});
+                            },
+                            child: Text('Entertainment'),
+                          )
+                        : OutlinedButton(
+                            onPressed: () {
+                              setState(() {});
+                            },
+                            child: Text('Entertainment'),
+                          )),
+                    (_selectedCategory != Category.other
+                        ? ElevatedButton(
+                            onPressed: () {
+                              _selectedCategory = Category.other;
+                              setState(() {});
+                            },
+                            child: Text('Other'),
+                          )
+                        : OutlinedButton(
+                            onPressed: () {
+                              setState(() {});
+                            },
+                            child: Text('Other'),
+                          )),
+                  ],
+                ),
+              ),
+            ),
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -95,9 +193,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     )
                   : ListView.builder(
-                      itemCount: _expenses.length,
+                      itemCount: visibleExpenses.length,
                       itemBuilder: (context, index) {
-                        final expense = _expenses[index];
+                        final expense = visibleExpenses[index];
                         return ExpenseTile(expense: expense);
                       },
                     ),

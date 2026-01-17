@@ -135,7 +135,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     onPressed: () {
                       _saveExpense();
                     },
-                    child: const Text('Add test expense'),
+                    child: const Text('Add expense'),
                   ),
                 ),
               ],
