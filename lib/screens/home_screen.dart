@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/screens/add_expense_screen.dart';
 import 'package:expense_tracker/services/storage_service.dart';
@@ -60,6 +62,31 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     return result;
+  }
+
+  void _editExpense(Expense expense) async {
+    final editedExpense = await showModalBottomSheet<Expense>(
+      context: context,
+      builder: (context) {
+        return AddExpenseScreen(
+          initialExpense: expense,
+        );
+      },
+    );
+
+    if (editedExpense == null) {
+      return;
+    }
+
+    for (int i = 0; i < _expenses.length; i++) {
+      if (_expenses[i].id == expense.id) {
+        setState(()  {
+          _expenses[i] = editedExpense;
+        });
+        await _storage.saveExpenses(_expenses);
+        break;
+      }
+    }
   }
 
   void _deleteExpense(Expense expense) {
@@ -203,7 +230,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: visibleExpenses.length,
                       itemBuilder: (context, index) {
                         final expense = visibleExpenses[index];
-                        return ExpenseTile(expense: expense, onDelete: () => _deleteExpense(expense));
+                        return ExpenseTile(
+                          expense: expense,
+                          onEdit: () => _editExpense(expense),
+                          onDelete: () => _deleteExpense(expense),
+                        );
                       },
                     ),
             ),

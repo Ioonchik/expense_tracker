@@ -2,9 +2,14 @@ import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key, required this.onAddExpense});
+  const AddExpenseScreen({
+    super.key,
+    this.onAddExpense,
+    this.initialExpense = null,
+  });
 
-  final void Function(Expense expense) onAddExpense;
+  final void Function(Expense expense)? onAddExpense;
+  final Expense? initialExpense;
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -18,6 +23,17 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Category _selectedCategory = Category.other;
 
   String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialExpense != null) {
+      _titleController.text = widget.initialExpense!.title;
+      _amountController.text = widget.initialExpense!.amount.toString();
+      _selectedDate = widget.initialExpense!.date;
+      _selectedCategory = widget.initialExpense!.category;
+    }
+  }
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -48,16 +64,28 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       return;
     }
 
-    final expense = Expense(
-      id: DateTime.now().millisecondsSinceEpoch,
-      title: title,
-      amount: amount,
-      date: _selectedDate!,
-      category: _selectedCategory,
-    );
+    if (widget.initialExpense != null) {
+      final editedExpense = Expense(
+        id: widget.initialExpense!.id,
+        title: title,
+        amount: amount,
+        date: _selectedDate!,
+        category: _selectedCategory,
+      );
 
-    widget.onAddExpense(expense);
-    Navigator.pop(context);
+      Navigator.pop(context, editedExpense);
+    } else {
+      final expense = Expense(
+        id: DateTime.now().millisecondsSinceEpoch,
+        title: title,
+        amount: amount,
+        date: _selectedDate!,
+        category: _selectedCategory,
+      );
+
+      widget.onAddExpense!(expense);
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -135,7 +163,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     onPressed: () {
                       _saveExpense();
                     },
-                    child: const Text('Add expense'),
+                    child: widget.initialExpense != null
+                        ? const Text('Add expense')
+                        : const Text('Save'),
                   ),
                 ),
               ],

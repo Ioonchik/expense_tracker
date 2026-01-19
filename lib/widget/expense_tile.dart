@@ -2,11 +2,12 @@ import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseTile extends StatelessWidget {
-  const ExpenseTile({super.key, required this.expense, required this.onDelete});
+  const ExpenseTile({super.key, required this.expense, required this.onEdit, required this.onDelete});
 
   final Expense expense;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
-
+  
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -22,6 +23,9 @@ class ExpenseTile extends StatelessWidget {
           '${expense.amount.toStringAsFixed(0)} ₸',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
+        onTap: () {
+          onEdit();
+        },
         onLongPress: () {
           showDialog(
             context: context,
