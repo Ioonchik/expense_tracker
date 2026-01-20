@@ -16,13 +16,18 @@ class AddExpenseScreen extends StatefulWidget {
 }
 
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
 
   DateTime? _selectedDate = DateTime.now();
   Category _selectedCategory = Category.other;
 
+  static const double _maxAmount = 1_000_000_000;
+
   String? _errorText;
+  String? _dateError;
 
   @override
   void initState() {
@@ -46,29 +51,32 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
     if (picked == null) return;
 
-    setState(() => _selectedDate = picked);
+    setState(() {
+      _selectedDate = picked;
+      _dateError = null;
+    });
   }
 
   void _saveExpense() {
+    final isValid = _formKey.currentState!.validate();
+
+    if (_selectedDate == null) {
+      setState(() {
+        _dateError = 'Pick a date';
+      });
+    }
+
+    if (!isValid || _selectedDate == null) return;
+ 
     final title = _titleController.text.trim();
     final rawAmount = _amountController.text.replaceAll(',', '.');
     final amount = double.tryParse(rawAmount);
-
-    if (title.isEmpty ||
-        amount == null ||
-        amount <= 0 ||
-        _selectedDate == null) {
-      setState(() {
-        _errorText = 'Please fill all fields correctly';
-      });
-      return;
-    }
 
     if (widget.initialExpense != null) {
       final editedExpense = Expense(
         id: widget.initialExpense!.id,
         title: title,
-        amount: amount,
+        amount: amount!,
         date: _selectedDate!,
         category: _selectedCategory,
       );
@@ -78,13 +86,20 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       final expense = Expense(
         id: DateTime.now().millisecondsSinceEpoch,
         title: title,
-        amount: amount,
+        amount: amount!,
         date: _selectedDate!,
         category: _selectedCategory,
       );
 
       widget.onAddExpense!(expense);
       Navigator.pop(context);
+    }
+
+    @override
+    void dispose() {
+      _titleController.dispose();
+      _amountController.dispose();
+      super.dispose();
     }
   }
 
@@ -95,82 +110,121 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return SizedBox(
       child: Padding(
         padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(labelText: 'Title:'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _titleController,
+                decoration: InputDecoration(labelText: 'Title'),
+                textInputAction: TextInputAction.next,
+                validator: (value) {
+                  final v = value?.trim() ?? '';
+                  if (v.isEmpty) return 'Enter a title';
+                  return null;
+                },
               ),
-              decoration: InputDecoration(labelText: 'Amount:'),
-            ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(labelText: 'Amount (₸)'),
+                validator: (value) {
+                  final raw = (value ?? '').trim();
 
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _pickDate,
-                    icon: const Icon(Icons.calendar_month),
-                    label: Text(
-                      _selectedDate == null
-                          ? 'Pick date'
-                          : '${_selectedDate!.day}.${_selectedDate!.month}.${_selectedDate!.year}',
+                  if (raw.isEmpty) return 'Enter an amount';
+
+                  final normalized = raw.replaceAll(',', '.');
+                  final parsed = double.tryParse(normalized);
+
+                  if (parsed == null) return 'Enter a valid number';
+                  if (parsed <= 0) return 'Amount must be greater than 0';
+                  if (parsed > _maxAmount) {
+                    return 'Amount must be less than ${_maxAmount.toStringAsFixed(0)}';
+                  }
+
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _pickDate,
+                      icon: const Icon(Icons.calendar_month),
+                      label: Text(
+                        _selectedDate == null
+                            ? 'Pick date'
+                            : '${_selectedDate!.day}.${_selectedDate!.month}.${_selectedDate!.year}',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (_dateError != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsetsGeometry.only(top: 6),
+                    child: Text(
+                      _dateError!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),
+
+              const SizedBox(height: 12),
+              DropdownButtonFormField<Category>(
+                initialValue: _selectedCategory,
+                items: Category.values
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() => _selectedCategory = value);
+                },
+              ),
+
+              const SizedBox(height: 16),
+              if (_errorText != null) ...[
+                Text(
+                  _errorText!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
               ],
-            ),
 
-            const SizedBox(height: 12),
-            DropdownButtonFormField<Category>(
-              initialValue: _selectedCategory,
-              items: Category.values
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
-                  .toList(),
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() => _selectedCategory = value);
-              },
-            ),
-
-            const SizedBox(height: 16),
-            if (_errorText != null) ...[
-              Text(
-                _errorText!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        _saveExpense();
+                      },
+                      child: widget.initialExpense != null
+                          ? const Text('Save')
+                          : const Text('Add expense'),
+                    ),
+                  ),
+                ],
               ),
             ],
-
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () {
-                      _saveExpense();
-                    },
-                    child: widget.initialExpense != null
-                        ? const Text('Save')
-                        : const Text('Add expense'),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
