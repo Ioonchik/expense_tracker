@@ -164,8 +164,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                       _saveExpense();
                     },
                     child: widget.initialExpense != null
-                        ? const Text('Add expense')
-                        : const Text('Save'),
+                        ? const Text('Save')
+                        : const Text('Add expense'),
                   ),
                 ),
               ],

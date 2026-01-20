@@ -13,7 +13,7 @@ class ExpenseTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: ListTile(
-        title: Text(expense.title),
+        title: Text(expense.title, maxLines: 1, overflow: TextOverflow.ellipsis,),
         subtitle: Text(
           '${expense.category.name.toUpperCase()}\n'
           '${expense.date.day}.${expense.date.month}.${expense.date.year}',

@@ -7,7 +7,14 @@ import 'package:expense_tracker/widget/expense_tile.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+    required this.onToggleTheme,
+    required this.themeMode,
+  });
+
+  final VoidCallback onToggleTheme;
+  final ThemeMode themeMode;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -68,9 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final editedExpense = await showModalBottomSheet<Expense>(
       context: context,
       builder: (context) {
-        return AddExpenseScreen(
-          initialExpense: expense,
-        );
+        return AddExpenseScreen(initialExpense: expense);
       },
     );
 
@@ -80,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     for (int i = 0; i < _expenses.length; i++) {
       if (_expenses[i].id == expense.id) {
-        setState(()  {
+        setState(() {
           _expenses[i] = editedExpense;
         });
         await _storage.saveExpenses(_expenses);
@@ -99,6 +104,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Expense Tracker'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: widget.onToggleTheme,
+            icon: Icon(
+              widget.themeMode == ThemeMode.light
+                  ? Icons.dark_mode
+                  : Icons.light_mode,
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -113,14 +133,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Text(
                           'Total expenses:',
-                          style: TextStyle(
-                            color: const Color.fromARGB(255, 45, 45, 45),
-                            fontSize: 16,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                         SizedBox(height: 4.0),
                         Text(
-                          '${total.toStringAsFixed(0)}',
+                          '${total.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,

@@ -17,18 +17,37 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  void _toggleTheme() {
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    const seed = Color(0xFF46AF50);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      themeMode: _themeMode,
       theme: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xFF46AF50),
+          seedColor: seed,
           brightness: Brightness.light,
         ),
-        useMaterial3: true,
       ),
-      home: HomeScreen()
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: seed,
+          brightness: Brightness.dark,
+        ),
+      ),
+      home: HomeScreen(onToggleTheme: _toggleTheme, themeMode: _themeMode),
     );
   }
 }
