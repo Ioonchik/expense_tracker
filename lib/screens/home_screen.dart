@@ -252,10 +252,53 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: visibleExpenses.length,
                       itemBuilder: (context, index) {
                         final expense = visibleExpenses[index];
-                        return ExpenseTile(
-                          expense: expense,
-                          onEdit: () => _editExpense(expense),
-                          onDelete: () => _deleteExpense(expense),
+                        return Dismissible(
+                          key: Key(expense.id.toString()),
+                          direction: DismissDirection.endToStart,
+                          background: ColoredBox(
+                            color: Colors.redAccent,
+                            child: Align(
+                              alignment: AlignmentGeometry.centerRight,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Icon(Icons.delete),
+                              ),
+                            ),
+                          ),
+                          confirmDismiss: (direction) {
+                            return showDialog(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                title: Text('Delete ${expense.title}?'),
+                                content: Text('This action cannot be undone'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(dialogContext, false);
+                                    },
+                                        
+                                    child: Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(dialogContext, true);
+                                    },
+                                    child: Text(
+                                      'Delete',
+                                      style: TextStyle(color: Colors.redAccent),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          onDismissed: (direction) {
+                            _deleteExpense(expense);
+                          },
+                          child: ExpenseTile(
+                            expense: expense,
+                            onEdit: () => _editExpense(expense),
+                          ),
                         );
                       },
                     ),
