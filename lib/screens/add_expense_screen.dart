@@ -95,12 +95,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       Navigator.pop(context);
     }
 
-    @override
-    void dispose() {
-      _titleController.dispose();
-      _amountController.dispose();
-      super.dispose();
-    }
   }
 
   @override

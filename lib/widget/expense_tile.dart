@@ -2,11 +2,7 @@ import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseTile extends StatelessWidget {
-  const ExpenseTile({
-    super.key,
-    required this.expense,
-    required this.onEdit,
-  });
+  const ExpenseTile({super.key, required this.expense, required this.onEdit});
 
   final Expense expense;
   final VoidCallback onEdit;
@@ -27,7 +23,7 @@ class ExpenseTile extends StatelessWidget {
         ),
         isThreeLine: true,
         trailing: Text(
-          '${expense.amount.toStringAsFixed(0)} ₸',
+          '${expense.amount % 1 == 0 ? expense.amount.toStringAsFixed(0) : expense.amount.toStringAsFixed(2)} ₸',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         onTap: () {

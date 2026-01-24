@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/screens/add_expense_screen.dart';
 import 'package:expense_tracker/services/storage_service.dart';
@@ -9,12 +7,12 @@ import 'package:flutter/material.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
-    required this.onToggleTheme,
     required this.themeMode,
+    required this.onThemeModeChanged
   });
 
-  final VoidCallback onToggleTheme;
   final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -110,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: widget.onToggleTheme,
+            onPressed: () => widget.onThemeModeChanged(widget.themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark),
             icon: Icon(
               widget.themeMode == ThemeMode.light
                   ? Icons.dark_mode
@@ -142,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(height: 4.0),
                         Text(
-                          '${total.toStringAsFixed(2)}',
+                          '${total % 1 == 0 ? total.toStringAsFixed(0) : total.toStringAsFixed(2)} ₸',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
