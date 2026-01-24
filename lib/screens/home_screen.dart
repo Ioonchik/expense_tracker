@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   double get total => getTotal(_expenses);
 
-  Category? _selectedCategory = null;
+  Category? _selectedCategory;
 
   @override
   void initState() {

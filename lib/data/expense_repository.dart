@@ -14,6 +14,6 @@ class ExpenseRepository {
   }
 
   void removeById(String id) {
-    _items.removeWhere((e) => e.id == id);
+    _items.removeWhere((e) => e.id.toString() == id);
   }
 }

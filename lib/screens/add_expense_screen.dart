@@ -5,7 +5,7 @@ class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({
     super.key,
     this.onAddExpense,
-    this.initialExpense = null,
+    this.initialExpense,
   });
 
   final void Function(Expense expense)? onAddExpense;
