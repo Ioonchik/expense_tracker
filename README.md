@@ -3,9 +3,11 @@
 A simple Flutter expense tracker app to add, edit, delete daily expenses.
 
 ## 📱 Screenshots
-![Home](screenshots/home.png)
-![Add Expense](screenshots/add_expense.png)
-![Edit Expense](screenshots/edit_expense.png)
+<p float="left">
+  <img src="screenshots/home.png" width="250" />
+  <img src="screenshots/add_expense.png" width="250" />
+  <img src="screenshots/edit_expense.png" width="250" />
+</p>
 
 ## ✨ Features
 - Add expenses with title, amount, date, and category
